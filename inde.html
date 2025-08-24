@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="shortcut icon" href="./favicon.ico">
+    <title>水泥土立方数计算器</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+            font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #e8f4f8 0%, #d1e3f0 100%);
+            min-height: 100vh;
+            padding: 15px;
+            color: #333;
+            line-height: 1.5;
+        }
+        .container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            max-width: 100%;
+            margin: 0 auto;
+        }
+        header {
+            background: linear-gradient(135deg, #2c3e50 0%, #4a6572 100%);
+            color: white;
+            padding: 20px 15px;
+            text-align: center;
+        }
+        h1 {
+            font-size: 22px;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        .subtitle {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        .content {
+            padding: 15px;
+        }
+        .section {
+            margin-bottom: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+        }
+        h2 {
+            color: #2c3e50;
+            font-size: 18px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e1e4e8;
+            font-weight: 600;
+        }
+        .shape-selector {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .shape-btn {
+            padding: 12px;
+            background: #edf2f7;
+            border: 2px solid transparent;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+        .shape-btn.active {
+            background: #d4e6f1;
+            border-color: #2c3e50;
+            color: #2c3e50;
+        }
+        .shape-btn i {
+            display: block;
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+        .input-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 6px;
+            color: #555;
+            font-weight: 500;
+            font-size: 14px;
+        }
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #d1d8e0;
+            border-radius: 8px;
+            font-size: 16px;
+            background: white;
+        }
+        input:focus, select:focus {
+            outline: none;
+            border-color: #4a6572;
+            box-shadow: 0 0 0 2px rgba(74, 101, 114, 0.2);
+        }
+        .unit {
+            color: #777;
+            font-size: 12px;
+            margin-left: 4px;
+        }
+        .dimension-inputs {
+            display: grid;
+            gap: 12px;
+        }
+        button {
+            background: linear-gradient(135deg, #2c3e50 0%, #4a6572 100%);
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+            width: 100%;
+            margin: 15px 0;
+        }
+        button:active {
+            transform: scale(0.98);
+        }
+        .result-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            text-align: center;
+            margin-top: 20px;
+        }
+        .result-value {
+            font-size: 28px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin: 10px 0;
+        }
+        .result-unit {
+            font-size: 16px;
+            color: #666;
+        }
+        .visualization {
+            margin-top: 20px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            text-align: center;
+        }
+        .shape-diagram {
+            width: 100%;
+            max-width: 300px;
+            height: 150px;
+            margin: 0 auto;
+            position: relative;
+        }
+        .diagram-label {
+            position: absolute;
+            background: rgba(255,255,255,0.9);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            border: 1px solid #ddd;
+        }
+        .spec-note {
+            background: #e8f4f8;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+        .spec-note h3 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+        footer {
+            text-align: center;
+            padding: 15px;
+            color: #666;
+            font-size: 12px;
+            border-top: 1px solid #eaeaea;
+        }
+        
+        /* 形状图标样式 */
+        .icon-rectangle, .icon-circle, .icon-triangle, .icon-trapezoid {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            background: #4a6572;
+            margin-bottom: 8px;
+        }
+        .icon-rectangle {
+            background: linear-gradient(135deg, #4a6572 0%, #2c3e50 100%);
+        }
+        .icon-circle {
+            background: linear-gradient(135deg, #4a6572 0%, #2c3e50 100%);
+            border-radius: 50%;
+        }
+        .icon-triangle {
+            width: 0;
+            height: 0;
+            border-left: 20px solid transparent;
+            border-right: 20px solid transparent;
+            border-bottom: 35px solid #4a6572;
+            background: none;
+        }
+        .icon-trapezoid {
+            width: 40px;
+            height: 0;
+            border-left: 10px solid transparent;
+            border-right: 10px solid transparent;
+            border-bottom: 35px solid #4a6572;
+            background: none;
+        }
+        
+        /* 响应式调整 */
+        @media (min-width: 480px) {
+            .shape-selector {
+                grid-template-columns: repeat(4, 1fr);
+            }
+            .dimension-inputs {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (min-width: 768px) {
+            body {
+                padding: 20px;
+            }
+            .container {
+                max-width: 700px;
+            }
+            .content {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>水泥土立方数计算器</h1>
+            <div class="subtitle">快速计算各种形状的土方量</div>
+        </header>
+        
+        <div class="content">
+            <div class="section">
+                <h2>选择形状</h2>
+                
+                <div class="shape-selector">
+                    <div class="shape-btn active" onclick="selectShape('rectangle')">
+                        <div class="icon-rectangle"></div>
+                        <span>矩形</span>
+                    </div>
+                    <div class="shape-btn" onclick="selectShape('circle')">
+                        <div class="icon-circle"></div>
+                        <span>圆形</span>
+                    </div>
+                    <div class="shape-btn" onclick="selectShape('triangle')">
+                        <div class="icon-triangle"></div>
+                        <span>三角形</span>
+                    </div>
+                    <div class="shape-btn" onclick="selectShape('trapezoid')">
+                        <div class="icon-trapezoid"></div>
+                        <span>梯形</span>
+                    </div>
+                </div>
+                
+                <div id="dimension-inputs">
+                    <!-- 矩形输入框 -->
+                    <div class="dimension-inputs" id="rectangle-inputs">
+                        <div class="input-group">
+                            <label for="length">长度 <span class="unit">(米)</span></label>
+                            <input type="number" id="length" value="5" min="0.1" step="0.1">
+                        </div>
+                        <div class="input-group">
+                            <label for="width">宽度 <span class="unit">(米)</span></label>
+                            <input type="number" id="width" value="3" min="0.1" step="0.1">
+                        </div>
+                        <div class="input-group">
+                            <label for="height">高度/深度 <span class="unit">(米)</span></label>
+                            <input type="number" id="height" value="0.5" min="0.1" step="0.1">
+                        </div>
+                    </div>
+                    
+                    <!-- 圆形输入框 -->
+                    <div class="dimension-inputs" id="circle-inputs" style="display:none">
+                        <div class="input-group">
+                            <label for="radius">半径 <span class="unit">(米)</span></label>
+                            <input type="number" id="radius" value="2" min="0.1" step="0.1">
+                        </div>
+                        <div class="input-group">
+                            <label for="circle-height">高度/深度 <span class="unit">(米)</span></label>
+                            <input type="number" id="circle-height" value="0.5" min="0.1" step="0.1">
+                        </div>
+                    </div>
+                    
+                    <!-- 三角形输入框 -->
+                    <div class="dimension-inputs" id="triangle-inputs" style="display:none">
+                        <div class="input-group">
+                            <label for="base">底边长度 <span class="unit">(米)</span></label>
+                            <input type="number" id="base" value="4" min="0.1" step="0.1">
+                        </div>
+                        <div class="input-group">
+                            <label for="triangle-height">高度 <span class="unit">(米)</span></label>
+                            <input type="number" id="triangle-height" value="3" min="0.1" step="0.1">
+                        </div>
+                        <div class="input-group">
+                            <label for="triangle-depth">深度 <span class="unit">(米)</span></label>
+                            <input type="number" id="triangle-depth" value="0.5" min="0.1" step="0.1">
+                        </div>
+                    </div>
+                    
+                    <!-- 梯形输入框 -->
+                    <div class="dimension-inputs" id="trapezoid-inputs" style="display:none">
+                        <div class="input-group">
+                            <label for="top-length">上底长度 <span class="unit">(米)</span></label>
+                            <input type="number" id="top-length" value="3" min="0.1" step="0.1">
+                        </div>
+                        <div class="input-group">
+                            <label for="bottom-length">下底长度 <span class="unit">(米)</span></label>
+                            <input type="number" id="bottom-length" value="5" min="0.1" step="0.1">
+                        </div>
+                        <div class="input-group">
+                            <label for="trapezoid-height">高度 <span class="unit">(米)</span></label>
+                            <input type="number" id="trapezoid-height" value="2" min="0.1" step="0.1">
+                        </div>
+                        <div class="input-group">
+                            <label for="trapezoid-depth">深度 <span class="unit">(米)</span></label>
+                            <input type="number" id="trapezoid-depth" value="0.5" min="0.1" step="0.1">
+                        </div>
+                    </div>
+                </div>
+                
+                <button onclick="calculateVolume()">计算体积</button>
+            </div>
+            
+            <div class="section">
+                <h2>计算结果</h2>
+                
+                <div class="result-card">
+                    <div>总体积</div>
+                    <div class="result-value" id="volume-result">7.5</div>
+                    <div class="result-unit">立方米 (m³)</div>
+                </div>
+                
+                <div class="visualization">
+                    <h3>形状示意图</h3>
+                    <div class="shape-diagram" id="shape-diagram">
+                        <!-- 示意图将通过JavaScript动态生成 -->
+                        <div style="width: 100px; height: 60px; background: #4a6572; margin: 20px auto; border-radius: 4px;"></div>
+                    </div>
+                    <div style="margin-top: 10px; font-size: 13px; color: #666;">
+                        当前选择：<span id="current-shape">矩形</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="spec-note">
+                <h3>计算说明</h3>
+                <p>• 矩形体积 = 长度 × 宽度 × 高度</p>
+                <p>• 圆形体积 = π × 半径² × 高度</p>
+                <p>• 三角形体积 = (底边 × 高度 ÷ 2) × 深度</p>
+                <p>• 梯形体积 = (上底 + 下底) × 高度 ÷ 2 × 深度</p>
+                <p>• 1立方米 = 1000升，实际施工建议增加5-10%的裕量</p>
+            </div>
+        </div>
+        
+        <footer>
+            <p>© 2025 水泥土立方数计算器 | 计算结果仅供参考</p>
+        </footer>
+    </div>
+
+    <script>
+        let currentShape = 'rectangle';
+        
+        function selectShape(shape) {
+            currentShape = shape;
+            
+            // 更新按钮状态
+            document.querySelectorAll('.shape-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.currentTarget.classList.add('active');
+            
+            // 更新输入框显示
+            document.getElementById('rectangle-inputs').style.display = 'none';
+            document.getElementById('circle-inputs').style.display = 'none';
+            document.getElementById('triangle-inputs').style.display = 'none';
+            document.getElementById('trapezoid-inputs').style.display = 'none';
+            
+            document.getElementById(shape + '-inputs').style.display = 'grid';
+            
+            // 更新当前形状显示
+            const shapeNames = {
+                'rectangle': '矩形',
+                'circle': '圆形',
+                'triangle': '三角形',
+                'trapezoid': '梯形'
+            };
+            document.getElementById('current-shape').textContent = shapeNames[shape];
+            
+            // 更新示意图
+            updateShapeDiagram();
+        }
+        
+        function calculateVolume() {
+            let volume = 0;
+            
+            switch(currentShape) {
+                case 'rectangle':
+                    const length = parseFloat(document.getElementById('length').value) || 0;
+                    const width = parseFloat(document.getElementById('width').value) || 0;
+                    const height = parseFloat(document.getElementById('height').value) || 0;
+                    volume = length * width * height;
+                    break;
+                    
+                case 'circle':
+                    const radius = parseFloat(document.getElementById('radius').value) || 0;
+                    const circleHeight = parseFloat(document.getElementById('circle-height').value) || 0;
+                    volume = Math.PI * Math.pow(radius, 2) * circleHeight;
+                    break;
+                    
+                case 'triangle':
+                    const base = parseFloat(document.getElementById('base').value) || 0;
+                    const triangleHeight = parseFloat(document.getElementById('triangle-height').value) || 0;
+                    const depth = parseFloat(document.getElementById('triangle-depth').value) || 0;
+                    volume = (base * triangleHeight / 2) * depth;
+                    break;
+                    
+                case 'trapezoid':
+                    const topLength = parseFloat(document.getElementById('top-length').value) || 0;
+                    const bottomLength = parseFloat(document.getElementById('bottom-length').value) || 0;
+                    const trapezoidHeight = parseFloat(document.getElementById('trapezoid-height').value) || 0;
+                    const trapezoidDepth = parseFloat(document.getElementById('trapezoid-depth').value) || 0;
+                    volume = ((topLength + bottomLength) * trapezoidHeight / 2) * trapezoidDepth;
+                    break;
+            }
+            
+            // 显示结果
+            document.getElementById('volume-result').textContent = volume.toFixed(2);
+            
+            // 更新示意图
+            updateShapeDiagram();
+        }
+        
+        function updateShapeDiagram() {
+            const diagram = document.getElementById('shape-diagram');
+            diagram.innerHTML = '';
+            
+            switch(currentShape) {
+                case 'rectangle':
+                    diagram.innerHTML = `
+                        <div style="position: relative; width: 120px; height: 80px; margin: 20px auto;">
+                            <div style="width: 100px; height: 60px; background: linear-gradient(135deg, #4a6572 0%, #2c3e50 100%); border: 2px solid #2c3e50; border-radius: 4px;"></div>
+                            <div class="diagram-label" style="top: -15px; left: 40px;">长</div>
+                            <div class="diagram-label" style="top: 25px; right: -15px;">宽</div>
+                            <div class="diagram-label" style="bottom: -15px; left: 40px;">高</div>
+                        </div>
+                    `;
+                    break;
+                    
+                case 'circle':
+                    diagram.innerHTML = `
+                        <div style="position: relative; width: 120px; height: 80px; margin: 20px auto;">
+                            <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #4a6572 0%, #2c3e50 100%); border: 2px solid #2c3e50; border-radius: 50%; margin: 0 auto;"></div>
+                            <div class="diagram-label" style="top: 35px; left: 90px;">半径</div>
+                            <div class="diagram-label" style="bottom: -15px; left: 50px;">高</div>
+                        </div>
+                    `;
+                    break;
+                    
+                case 'triangle':
+                    diagram.innerHTML = `
+                        <div style="position: relative; width: 120px; height: 80px; margin: 20px auto;">
+                            <div style="width: 0; height: 0; border-left: 40px solid transparent; border-right: 40px solid transparent; border-bottom: 70px solid #4a6572; margin: 0 auto;"></div>
+                            <div class="diagram-label" style="top: 75px; left: 45px;">底边</div>
+                            <div class="diagram-label" style="top: 20px; right: 45px;">高</div>
+                            <div class="diagram-label" style="bottom: -15px; left: 50px;">深</div>
+                        </div>
+                    `;
+                    break;
+                    
+                case 'trapezoid':
+                    diagram.innerHTML = `
+                        <div style="position: relative; width: 120px; height: 80px; margin: 20px auto;">
+                            <div style="width: 100px; height: 60px; background: linear-gradient(135deg, #4a6572 0%, #2c3e50 100%); clip-path: polygon(20% 0%, 80% 0%, 100% 100%, 0% 100%); margin: 0 auto;"></div>
+                            <div class="diagram-label" style="top: -15px; left: 30px;">上底</div>
+                            <div class="diagram-label" style="top: -15px; right: 30px;">下底</div>
+                            <div class="diagram-label" style="top: 25px; right: -15px;">高</div>
+                            <div class="diagram-label" style="bottom: -15px; left: 50px;">深</div>
+                        </div>
+                    `;
+                    break;
+            }
+        }
+        
+        // 初始化
+        window.onload = function() {
+            updateShapeDiagram();
+            calculateVolume();
+            
+            // 为所有输入框添加自动计算功能
+            document.querySelectorAll('input').forEach(input => {
+                input.addEventListener('input', calculateVolume);
+            });
+        };
+    </script>
+</body>
+</html>
